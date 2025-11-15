@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; // 1. Use 'useNavigate'
 import React, { useState } from "react";
 import axios from "axios";
 
@@ -19,91 +19,104 @@ const getPriorityBadge = (priority) => {
   }
 };
 
+// Helper for row highlight color
+const getRowBgColor = (priority) => {
+    switch (priority) {
+        case "Urgent": return 'table-danger';
+        case "High": return 'table-warning';
+        default: return ''; // Default no color
+    }
+}
+
 function QueryRow({ query, onQueryUpdated }) {
-  // Use local state to manage dropdown changes immediately
   const [status, setStatus] = useState(query.status);
   const [assignedTo, setAssignedTo] = useState(query.assignedTo);
+  const navigate = useNavigate(); // 2. Initialize navigate
 
-  // This function sends the update to the backend
+  const getAuthHeaders = () => ({
+    headers: { 'x-auth-token': localStorage.getItem('token') },
+  });
+
   const handleUpdate = async (field, value) => {
     try {
-      // Send a PUT request to update the specific query
       const response = await axios.put(`${API_URL}/${query._id}`, {
-        [field]: value, // e.g., { status: "Open" }
-      });
-
-      // Tell the parent (DashboardPage) to update its list
+        [field]: value,
+      }, getAuthHeaders());
       onQueryUpdated(response.data);
     } catch (err) {
       console.error("Error updating query:", err);
-      // If error, revert the change in the UI
       if (field === "status") setStatus(query.status);
       if (field === "assignedTo") setAssignedTo(query.assignedTo);
     }
   };
 
-  // Handler for the status dropdown
   const handleStatusChange = (e) => {
+    e.stopPropagation(); // 3. Stop row click when changing status
     const newStatus = e.target.value;
-    setStatus(newStatus); // Update UI immediately
-    handleUpdate("status", newStatus); // Send to backend
+    setStatus(newStatus);
+    handleUpdate("status", newStatus);
   };
 
-  // Handler for the assignment dropdown
   const handleAssigneeChange = (e) => {
+    e.stopPropagation(); // 4. Stop row click when changing assignee
     const newAssignee = e.target.value;
-    setAssignedTo(newAssignee); // Update UI immediately
-    handleUpdate("assignedTo", newAssignee); // Send to backend
+    setAssignedTo(newAssignee);
+    handleUpdate("assignedTo", newAssignee);
   };
 
-  // --- Render the table row ---
+  // 5. Function to handle the row click
+  const handleRowClick = () => {
+    navigate(`/query/${query._id}`);
+  };
+
   return (
-    <tr style={{ cursor: 'pointer' }}>
-      {/* Status Dropdown */}
+    // 6. Add onClick handler and cursor style to the row
+    <tr 
+      className={getRowBgColor(query.priority)} 
+      style={{ verticalAlign: 'middle', cursor: 'pointer' }}
+      onClick={handleRowClick}
+    >
+      
+      {/* 1. Customer / Content (Matches header) */}
       <td>
-        <select
-          className="form-select form-select-sm"
-          value={status}
-          onChange={handleStatusChange}
-        >
-          <option value="New">New</option>
-          <option value="Open">Open</option>
-          <option value="Pending">Pending</option>
-          <option value="Resolved">Resolved</option>
-          <option value="Closed">Closed</option>
-        </select>
+        <span className="text-decoration-none fw-bold text-dark">
+          {query.customerName}
+        </span>
+        <p className="text-muted small mb-0" title={query.content}>
+          {query.content.substring(0, 55)}...
+        </p>
       </td>
 
-      {/* Priority */}
+      {/* 2. Status / Priority Dropdowns (Matches header) */}
       <td>
+        <div className="mb-1">
+            <select
+                className="form-select form-select-sm"
+                value={status}
+                onClick={(e) => e.stopPropagation()} // Keep this
+                onChange={handleStatusChange}
+            >
+                <option value="New">New</option>
+                <option value="Open">Open</option>
+                <option value="Pending">Pending</option>
+                <option value="Resolved">Resolved</option>
+                <option value="Closed">Closed</option>
+            </select>
+        </div>
         <span className={`badge bg-${getPriorityBadge(query.priority)}`}>
           {query.priority}
         </span>
       </td>
 
-      {/* Source */}
+      {/* 3. Source (Matches header) */}
       <td>{query.source}</td>
 
-      {/* --- CUSTOMER (NOW A CLICKABLE LINK) --- */}
-      <td>
-        <Link 
-          to={`/query/${query._id}`} 
-          className="text-decoration-none fw-bold"
-          // We apply the color based on priority for quick visibility
-          style={{ color: getPriorityBadge(query.priority) === 'danger' ? 'red' : 'inherit' }}
-        >
-          {query.customerName}
-        </Link>
-      </td>
-
-      {/* Content */}
-      <td>{query.content.substring(0, 50)}...</td>
-
-      {/* Assigned To Dropdown */}
+      {/* 4. Assigned To Dropdown (Matches header) */}
       <td>
         <select
           className="form-select form-select-sm"
           value={assignedTo}
+          onClick={(e) => e.stopPropagation()} // Keep this
           onChange={handleAssigneeChange}
         >
           <option value="Unassigned">Unassigned</option>
@@ -113,10 +126,10 @@ function QueryRow({ query, onQueryUpdated }) {
         </select>
       </td>
       
-      {/* Tags Column (Added back) */}
+      {/* 5. Tags Column (Matches header) */}
       <td>
         {query.tags.map((tag) => (
-          <span key={tag} className="badge bg-primary me-1">
+          <span key={tag} className="badge bg-primary me-1 mb-1">
             {tag}
           </span>
         ))}

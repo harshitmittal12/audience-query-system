@@ -11,3 +11,34 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+body, #root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.footer-icon {
+  font-size: 1.5rem; /* Makes the icons a bit bigger */
+  color: #adb5bd;  /* A muted gray color by default */
+  transition: color 0.2s ease-in-out; /* Smooth color change */
+  text-decoration: none;
+}
+
+.footer-icon-linkedin:hover {
+  color: #0A66C2; /* Official LinkedIn Blue */
+}
+
+.footer-icon-github:hover {
+  color: #FFFFFF; /* White (looks best on a dark footer) */
+}
+.footer .text-muted {
+  /* This overrides Bootstrap's dark gray for a light-on-dark footer */
+  color: #ced4da !important; 
+}
+
+/* Update your icon CSS to match this new, brighter color */
+.footer-icon {
+  font-size: 1.5rem; 
+  color: #ced4da;  /* A light, visible gray */
+  transition: color 0.2s ease-in-out;
+  text-decoration: none;
+}
