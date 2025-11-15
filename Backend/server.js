@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const path = require('path'); // <-- NEW: Import path module for file paths
+const path = require('path'); // Make sure path is imported
 
 const app = express();
 const PORT = 5000; 
@@ -24,14 +24,13 @@ app.use('/api/auth', require('./routes/auth'));
 // --------------------------------
 // --- DEPLOYMENT CONFIGURATION ---
 // --------------------------------
-// This block ensures Express serves the static React files in a production environment.
 if (process.env.NODE_ENV === 'production') {
-  // 1. Set static folder: Express looks for files inside frontend/build
+  // 1. Set static folder
   app.use(express.static(path.join(__dirname, '../frontend/build')));
 
-  // 2. Catch-all GET route: For any request not matching an API route, serve index.html
-  // This allows React Router to handle client-side navigation (like /query/:id)
-  app.get('*', (req, res) => {
+  // 2. Catch-all GET route
+  //    THE FIX IS HERE: Changed '*' to '/*'
+  app.get('/*', (req, res) => {
     res.sendFile(path.resolve(__dirname, '../frontend', 'build', 'index.html'));
   });
 }
