@@ -25,13 +25,12 @@ app.use('/api/auth', require('./routes/auth'));
 // --- DEPLOYMENT CONFIGURATION ---
 // --------------------------------
 if (process.env.NODE_ENV === 'production') {
-  // 1. Set static folder
-  app.use(express.static(path.join(__dirname, '../frontend/build')));
+  // 1. Set static folder (FIXED: Capital 'F')
+  app.use(express.static(path.join(__dirname, '../Frontend/build')));
 
-  // 2. Catch-all GET route
-  //    THE FIX IS HERE: Changed '*' to '/*'
+  // 2. Catch-all GET route (FIXED: Capital 'F')
   app.get('/*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../frontend', 'build', 'index.html'));
+    res.sendFile(path.resolve(__dirname, '../Frontend', 'build', 'index.html'));
   });
 }
 
