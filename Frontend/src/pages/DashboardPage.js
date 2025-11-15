@@ -5,8 +5,7 @@ import QueryRow from '../components/QueryRow';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 
 // URL for the backend
-const API_URL = 'http://localhost:5000/api/queries';
-
+const API_URL = '/api/queries';
 function DashboardPage() {
     const [queries, setQueries] = useState([]);
     const [loading, setLoading] = useState(true);

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/queries';
-
+const API_URL = '/api/queries';
 function QueryForm({ onQueryAdded }) {
   const [content, setContent] = useState('');
   const [customerName, setCustomerName] = useState('');

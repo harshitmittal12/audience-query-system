@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom'; // Removed 'Link' as we use navigate
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/queries';
-
+const API_URL = '/api/queries';
 // Helper function for priority colors
 const getPriorityBadge = (priority) => {
     switch (priority) {

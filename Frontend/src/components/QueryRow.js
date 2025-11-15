@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'; // 1. Use 'useNavigate'
 import React, { useState } from "react";
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/queries";
+const API_URL = '/api/queries';
 
 // Helper function for priority colors
 const getPriorityBadge = (priority) => {
