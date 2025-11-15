@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const AUTH_API_URL = 'http://localhost:5000/api/auth';
+const AUTH_API_URL = '/api/auth';
 
 function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
