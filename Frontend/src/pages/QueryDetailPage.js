@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // Removed 'Link' as we use navigate
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+// Relative path for production
 const API_URL = '/api/queries';
+
 // Helper function for priority colors
 const getPriorityBadge = (priority) => {
     switch (priority) {
@@ -30,6 +32,33 @@ function QueryDetailPage() {
     const [assignedTo, setAssignedTo] = useState('');
     const [priority, setPriority] = useState(''); 
 
+    // --- DELETE FUNCTION WITH LOGIC ---
+    const handleDelete = async () => {
+        // 1. Logic Check: Is it Resolved or Closed?
+        if (status !== 'Resolved' && status !== 'Closed') {
+            alert("Action Denied: You can only delete queries that are marked as 'Resolved' or 'Closed'.");
+            return;
+        }
+
+        // 2. Confirmation
+        if (window.confirm("Are you sure you want to delete this query? This cannot be undone.")) {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) return navigate('/login');
+
+                await axios.delete(`${API_URL}/${id}`, {
+                    headers: { 'x-auth-token': token }
+                });
+                
+                // Redirect to dashboard after successful delete
+                navigate('/'); 
+            } catch (err) {
+                console.error("Error deleting query:", err);
+                alert("Failed to delete query. Ensure the Backend DELETE route is set up.");
+            }
+        }
+    };
+
     // Function to handle updates (PUT request)
     const handleUpdate = async (field, value) => {
         try {
@@ -42,6 +71,7 @@ function QueryDetailPage() {
                 headers: { 'x-auth-token': token }
             });
 
+            // Update state with the response data
             setQuery(response.data); 
             if (field === 'status') setStatus(response.data.status);
             if (field === 'assignedTo') setAssignedTo(response.data.assignedTo);
@@ -109,7 +139,6 @@ function QueryDetailPage() {
         return (
             <div className="container mt-5">
                 <div className="alert alert-danger">{error}</div>
-                {/* We use the Navbar to go back, so no button needed here */}
             </div>
         );
     }
@@ -125,7 +154,6 @@ function QueryDetailPage() {
     // --- Final Render ---
     return (
         <div className="container mt-4 mb-5"> 
-            {/* Removed the redundant "Back to Dashboard" button */}
             
             <h1 className="mb-0">Query Details: {query.customerName}</h1>
             <p className="lead text-muted">Query ID: {query._id}</p>
@@ -190,7 +218,6 @@ function QueryDetailPage() {
                 {/* --- Right Column: Workflow Management (Editable) --- */}
                 <div className="col-lg-4">
                     <div className="card shadow-sm mb-4">
-                        {/* Consistent Header Style */}
                         <div className="card-header bg-dark text-white">
                             Workflow & Status
                         </div>
@@ -235,6 +262,28 @@ function QueryDetailPage() {
                                     <option value="Billing Team">Billing Team</option>
                                 </select>
                             </div>
+
+                            <hr />
+                            
+                            <hr />
+                            
+                            {/* --- DELETE BUTTON --- */}
+                            {/* We disable the button if the status is not allowed */}
+                            <button 
+                                className="btn btn-outline-danger w-100" 
+                                onClick={handleDelete}
+                                disabled={status !== 'Resolved' && status !== 'Closed'}
+                            >
+                                <i className="bi bi-trash me-2"></i> Delete Query
+                            </button>
+                            
+                            {/* Helper text to explain why it's disabled */}
+                            {status !== 'Resolved' && status !== 'Closed' && (
+                                <p className="text-muted small text-center mt-2 mb-0">
+                                    *Query must be <strong>Resolved</strong> or <strong>Closed</strong> to delete.
+                                </p>
+                            )}
+
                         </div>
                     </div>
                 </div>

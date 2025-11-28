@@ -154,3 +154,22 @@ router.put('/:id', async (req, res) => {
 });
 
 module.exports = router;
+
+// @route   DELETE /api/queries/:id
+// @desc    Delete a query
+router.delete('/:id', async (req, res) => {
+  try {
+    const query = await Query.findByIdAndDelete(req.params.id);
+    
+    if (!query) {
+      return res.status(404).json({ msg: 'Query not found' });
+    }
+
+    res.json({ msg: 'Query removed' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+module.exports = router;
